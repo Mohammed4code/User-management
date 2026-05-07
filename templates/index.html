@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة التحكم - المستخدمين</title>
+    <link rel="stylesheet" href="/static/css/style.css"> 
+
+</head>
+<body>
+
+    <h1>إدارة المستخدمين</h1>
+    
+    <a href="/users/create" class="btn btn-add">إضافة مستخدم جديد +</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>الاسم الكامل</th>
+                <th>الإيميل</th>
+                <th>رقم الهاتف</th>
+                <th>المسمى الوظيفي</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range .users }}
+            <tr>
+                <td>{{ .ID }}</td>
+                <td>{{ .Fullname }}</td>
+                <td>{{ .Email }}</td>
+                <td>{{ .Phonenumber }}</td>
+                <td>{{ .Position }}</td>
+                <td>
+                    <a href="/users/edit/{{ .ID }}" class="btn btn-edit">تعديل</a>
+                    <a href="/users/delete/{{ .ID }}" 
+                       class="btn btn-delete" 
+                       onclick="return confirm('هل أنت متأكد من الحذف؟')">حذف</a>
+                </td>
+            </tr>
+            {{ else }}
+            <tr>
+                <td colspan="6">لا يوجد مستخدمين مسجلين حالياً.</td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</body>
+</html>
