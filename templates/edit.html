@@ -12,7 +12,7 @@
             <h2> تم التحديث بنجاح!</h2>
             <p>تم حفظ التعديلات الجديدة للمستخدم <strong>{{ .user.Fullname }}</strong>.</p>
             <br>
-            <a href="/users" class="btn-back btn-back-large" style="background: #28a745;">🏠 العودة إلى الرئيسية</a>
+            <a href="/users" class="btn-back btn-back-large" style="background: #28a745;"> العودة إلى الرئيسية</a>
         </div>
     {{else}}
         <div class="top-bar">
@@ -47,8 +47,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label>كلمة المرور الجديدة:</label>
-                    <input type="password" name="Password" placeholder="اتركه فارغاً للحفاظ على القديمة">
+                    <label>العمر:</label>
+                    <input type="number" name="Age" value="{{ .user.Age }}" placeholder="أدخل العمر" min="1" max="150">
                 </div>
 
                 <div class="button-group">

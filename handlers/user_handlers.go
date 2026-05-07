@@ -18,9 +18,10 @@ func ListUsers(c *gin.Context) {
 		"users": users,
 	})
 }
+
 // 2. عرض صفحة النموذج للإضافة (GET /users/create)  
 func ShowCreateForm(c *gin.Context) {
-    c.HTML(http.StatusOK, "create.html", nil)
+	c.HTML(http.StatusOK, "create.html", nil)
 }
 
 // 3. معالجة بيانات الإضافة (POST /users/create)
@@ -31,17 +32,17 @@ func CreateUser(c *gin.Context) {
 		c.HTML(http.StatusBadRequest, "create.html", gin.H{"Error": "تأكد من صحة البيانات: " + err.Error()})
 		return
 	}
-	
+
 	fmt.Println("Received data:")
 	fmt.Println("Fullname:", input.Fullname)
 	fmt.Println("Email:", input.Email)
 	fmt.Println("Phonenumber:", input.Phonenumber)
 	fmt.Println("Position:", input.Position)
-	fmt.Println("Password:", input.Password)
+	fmt.Println("Age:", input.Age)
 
 	// تحقق من عدم وجود بيانات فارغة
-	if input.Fullname == "" || input.Email == "" || input.Password == "" {
-		c.HTML(http.StatusBadRequest, "create.html", gin.H{"Error": "الاسم والبريد الإلكتروني وكلمة المرور مطلوبة"})
+	if input.Fullname == "" || input.Email == "" || input.Age == 0 {
+		c.HTML(http.StatusBadRequest, "create.html", gin.H{"Error": "الاسم والبريد الإلكتروني والعمر مطلوبة"})
 		return
 	}
 
@@ -50,18 +51,17 @@ func CreateUser(c *gin.Context) {
 		Email:       input.Email,
 		Phonenumber: input.Phonenumber,
 		Position:    input.Position,
-		Password:    input.Password,
+		Age:         input.Age,
 	}
-
 
 	if err := db.DB.Create(&user).Error; err != nil {
 		c.HTML(http.StatusInternalServerError, "create.html", gin.H{"Error": "تعذر حفظ البيانات: " + err.Error()})
 		return
 	}
 
-	// بعد الإضافة، ارجع للصفحة الرئيسية
 	c.Redirect(http.StatusSeeOther, "/users")
 }
+
 // 4. عرض صفحة التعديل (GET /users/edit/:id)
 func ShowEditForm(c *gin.Context) {
 	id := c.Param("id")
@@ -78,21 +78,21 @@ func ShowEditForm(c *gin.Context) {
 // 5. معالجة التعديل (POST /users/update/:id)
 func UpdateUser(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	// جلب المستخدم الحالي من قاعدة البيانات
 	var user models.User
 	if err := db.DB.First(&user, id).Error; err != nil {
 		c.HTML(http.StatusNotFound, "edit.html", gin.H{"Error": "المستخدم غير موجود"})
 		return
 	}
-	
+
 	// ربط البيانات المدخلة
 	var input models.UpdateUser
 	if err := c.ShouldBind(&input); err != nil {
 		c.HTML(http.StatusBadRequest, "edit.html", gin.H{"Error": "بيانات غير صالحة"})
 		return
 	}
-	
+
 	// تحديث الحقول إذا كانت موجودة
 	if input.Fullname != nil && *input.Fullname != "" {
 		user.Fullname = *input.Fullname
@@ -106,28 +106,22 @@ func UpdateUser(c *gin.Context) {
 	if input.Position != nil {
 		user.Position = *input.Position
 	}
-	if input.Password != nil && *input.Password != "" {
-		user.Password = *input.Password
-		// تشفير كلمة المرور الجديدة
-		if err := user.HashPassword(); err != nil {
-			c.HTML(http.StatusInternalServerError, "edit.html", gin.H{"Error": "فشل تشفير كلمة المرور"})
-			return
-		}
+	if input.Age != nil && *input.Age > 0 {
+		user.Age = *input.Age
 	}
-	
+
 	// حفظ التحديثات في قاعدة البيانات
 	if err := db.DB.Save(&user).Error; err != nil {
 		c.HTML(http.StatusInternalServerError, "edit.html", gin.H{"Error": "فشل تحديث البيانات: " + err.Error()})
 		return
 	}
-	
-	// إعادة توجيه إلى الصفحة الرئيسية
+
 	c.Redirect(http.StatusSeeOther, "/users")
 }
 
 // 6. حذف المستخدم (GET /users/delete/:id)
 func DeleteUser(c *gin.Context) {
 	id := c.Param("id")
-	    db.DB.Unscoped().Delete(&models.User{}, id)
+	db.DB.Unscoped().Delete(&models.User{}, id)
 	c.Redirect(http.StatusSeeOther, "/users")
 }
